@@ -2,7 +2,6 @@ const roteador = require('express').Router()
 const TabelaFornecedor = require('./TabelaFornecedor')
 const Fornecedor = require('./Fornecedor')
 const request = require('request');
-const NaoEncontrado = require('../../erros/NaoEncontrado');
 
 roteador.get('/', async (requisicao, resposta) =>  {
     const resultados = await TabelaFornecedor.listar()
@@ -13,7 +12,7 @@ roteador.get('/', async (requisicao, resposta) =>  {
     )
 })
 
-roteador.post('/', async (requisicao, resposta) => {
+roteador.post('/', async (requisicao, resposta, proximo) => {
     try{
         const dadosRecebidos = requisicao.body
         const fornecedor = new Fornecedor(dadosRecebidos)
@@ -24,17 +23,12 @@ roteador.post('/', async (requisicao, resposta) => {
         )
     }
     catch(erro) {
-        resposta.status(400)
-        resposta.send(
-            JSON.stringify({
-                mensagem: erro.message
-            })
-        )
+        proximo(erro)
     }
     
 })
 
-roteador.get('/:idFornecedor', async (requisicao,resposta) => {
+roteador.get('/:idFornecedor', async (requisicao,resposta, proximo) => {
     try{
         const id = requisicao.params.idFornecedor
         const fornecedor = new Fornecedor({id: id})
@@ -45,12 +39,7 @@ roteador.get('/:idFornecedor', async (requisicao,resposta) => {
         )
     }
     catch(erro) {
-        resposta.status(404)
-        resposta.send(
-            JSON.stringify({
-                mensagem: erro.message
-            })
-        )
+        proximo(erro)
     }
 
 })
@@ -70,7 +59,7 @@ roteador.put('/:idFornecedor', async (requisicao, resposta, proximo) =>{
     }
 })
 
-roteador.delete('/:idFornecedor', async (requisicao, resposta) => {
+roteador.delete('/:idFornecedor', async (requisicao, resposta, proximo) => {
     try{
         const id = requisicao.params.idFornecedor
         const fornecedor = new Fornecedor({id:id})
@@ -81,12 +70,7 @@ roteador.delete('/:idFornecedor', async (requisicao, resposta) => {
         resposta.end()
     }
     catch(erro) {
-        resposta.status(404)
-        resposta.send(
-            JSON.stringify({
-                mensagem: erro.message
-            })
-        )
+        proximo(erro)
     }
 })
 
